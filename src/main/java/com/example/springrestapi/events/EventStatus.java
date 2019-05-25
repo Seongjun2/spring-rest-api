@@ -1,4 +1,6 @@
 package com.example.springrestapi.events;
 
-public class EventStatus {
+public enum EventStatus {
+
+    DRAFT, PUBLISHED, BEGAN_ENROLLMENT;
 }
