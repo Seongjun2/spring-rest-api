@@ -5,8 +5,12 @@ import org.apache.tomcat.jni.Local;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -15,14 +19,14 @@ import java.time.LocalDateTime;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest // Slice Test. Web MVC를 테스트 하기 위한 Bean들만이 등록됨
+@SpringBootTest // Register all beans to test. We can use @WebMvcTest to test as slice test. But this way is easy.
+@AutoConfigureMockMvc
 public class EventControllerTests {
 
-    @Autowired // Web 서버를 구동하지 않기 때문에 좀 더 빠른 테스트가 가능
+    @Autowired // Enable to test cases because web server doesn't work
     MockMvc mockMvc;
 
     @Autowired
@@ -50,6 +54,7 @@ public class EventControllerTests {
                     .andDo(print())
                     .andExpect(status().isCreated())
                     .andExpect(jsonPath("id").exists())
-        ;
+                    .andExpect(header().exists(HttpHeaders.LOCATION))
+                    .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_UTF8_VALUE));
     }
 }

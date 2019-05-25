@@ -2,8 +2,11 @@ package com.example.springrestapi.events;
 
 import lombok.*;
 
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
+
+@Entity
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -13,6 +16,7 @@ import java.time.LocalDateTime;
                               // id로 비교하는 것이 바람직 @Data를 쓰지 않는 이유도 @EqualsAndHashCode를 재정의하려고
 public class Event {
 
+    @Id @GeneratedValue
     private Integer id;
     private String name;
     private String description;
@@ -26,5 +30,7 @@ public class Event {
     private int limitOfEnrollment;
     private boolean offline;
     private boolean free;
+    @Enumerated(EnumType.STRING)
     private EventStatus eventStatus = EventStatus.DRAFT;
+
 }
