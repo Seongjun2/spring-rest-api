@@ -1,5 +1,6 @@
 package com.example.springrestapi.events;
 
+import com.example.springrestapi.common.TestDescription;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hamcrest.Matchers;
 import org.junit.Test;
@@ -31,6 +32,7 @@ public class EventControllerTests {
     ObjectMapper objectMapper;
 
     @Test
+    @TestDescription("정상적으로 이벤트를 입력")
     public void createEvent() throws Exception {
         EventDto event = EventDto.builder()
                 .name("Spring")
@@ -54,13 +56,14 @@ public class EventControllerTests {
                     .andExpect(jsonPath("id").exists())
                     .andExpect(header().exists(HttpHeaders.LOCATION))
                     .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_UTF8_VALUE))
-                    .andExpect(jsonPath("id").value(Matchers.not(100)))
-                    .andExpect(jsonPath("free").value(Matchers.not(true)))
+                    .andExpect(jsonPath("free").value(false))
+                    .andExpect(jsonPath("offline").value(true))
                     .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.name()))
         ;
     }
 
     @Test
+    @TestDescription("입력받을 수 없는 값을 사용할 때")
     public void createEvent_Bad_Request() throws Exception {
         Event event = Event.builder()
                 .name("Spring")
@@ -88,6 +91,7 @@ public class EventControllerTests {
     }
 
     @Test
+    @TestDescription("입력값이 비어있을 때")
     public void createEvent_Bad_Request_Empty_Input() throws Exception {
         EventDto eventDto = EventDto.builder().build();
 
@@ -99,6 +103,7 @@ public class EventControllerTests {
     }
 
     @Test
+    @TestDescription("잘못된 입력값이 입력됬을 때")
     public void createEvent_Bad_Request_Wrong_Input() throws Exception {
         EventDto eventDto = EventDto.builder()
                 .name("Spring")
@@ -117,6 +122,10 @@ public class EventControllerTests {
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .content(this.objectMapper.writeValueAsString(eventDto)))
                 .andExpect(status().isBadRequest())
+                .andDo(print())
+                .andExpect(jsonPath("$[0].objectName").exists())
+                .andExpect(jsonPath("$[0].defaultMessage").exists())
+                .andExpect(jsonPath("$[0].rejectedValue").exists())
         ;
     }
 }
